@@ -1,14 +1,16 @@
 # BMCI AIPro
 
-Next.js + FastAPI tabanlı yapay zeka analiz sistemi.
+BIST Master Cycle Intelligence (BMCI)
 
-## Amaç
-BTC ve piyasa verilerine göre sinyal üretmek.
+AI destekli BIST analiz platformu.
+
+## Özellikler
+- BMCI Score Engine (0-100)
+- AI hisse analizi
+- Teknik indikatörler
+- Scanner sistemi
 
 ## Teknoloji
-- Backend: FastAPI
-- Frontend: Next.js
-- AI: Python logic
-
-## Versiyon
-v0.1 initial setup
+Frontend: Next.js  
+Backend: FastAPI  
+DB: SQLite
