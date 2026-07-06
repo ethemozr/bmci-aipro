@@ -59,3 +59,5 @@ def bist(symbol: str):
             "obv": obv
         }
     }
+
+from data_provider import get_bist_price, get_volume, get_history
