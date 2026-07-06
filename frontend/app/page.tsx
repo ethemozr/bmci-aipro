@@ -1,21 +1,25 @@
-export default async function Page() {
-  const res = await fetch("http://localhost:8000/api/analyze/THYAO", {
+async function getData(symbol: string) {
+  const res = await fetch(`http://localhost:8000/api/bist/${symbol}`, {
     cache: "no-store"
   });
 
-  const data = await res.json();
+  return res.json();
+}
+
+export default async function Page() {
+  const data = await getData("THYAO");
 
   return (
     <main style={{ padding: 20, background: "#0a0a0a", color: "white" }}>
-      <h1>BMCI AIPro Dashboard</h1>
+      <h1>BMCI BIST Engine</h1>
 
       <h2>{data.symbol}</h2>
 
+      <p>Price: {data.price}</p>
       <p>BMCI Score: {data.bmci_score}</p>
       <p>Signal: {data.signal}</p>
-      <p>Risk: {data.risk}</p>
 
-      <p>AI: {data.ai_comment}</p>
+      <pre>{JSON.stringify(data.indicators, null, 2)}</pre>
     </main>
   );
 }
