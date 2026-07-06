@@ -1,5 +1,4 @@
-@echo off
-cd /d %~dp0frontend
+cd frontend
 npm install
 npm run dev
 pause

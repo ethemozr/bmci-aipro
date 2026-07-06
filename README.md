@@ -1,26 +1,50 @@
-# bmci-aipro
+# BMCI AIPro
+## BIST Master Cycle Intelligence
 
-BIST Master Cycle Intelligence.
+BMCI AIPro; BIST hisseleri için yapay zekâ destekli analiz, döngü analizi, BMCI skoru, scanner, portföy ve alarm altyapısı sunan profesyonel analiz platformudur.
 
-## Çalıştırma
+## İçerik
+- FastAPI backend
+- Next.js frontend
+- SQLite database
+- BMCI Score Engine
+- RSI, MACD, EMA, OBV
+- Fibonacci
+- ATH analizi
+- Döngü analizi
+- Risk motoru
+- AI yorum motoru
+- Scanner
+- Portföy
+- Alarm
 
-Backend:
+## Backend Çalıştırma
+
 ```bash
-py -3.12 -m pip install -r backend/requirements.txt
-py -3.12 -m uvicorn backend.main:app --reload
+cd backend
+pip install -r requirements.txt
+uvicorn main:app --reload
 ```
 
-Frontend:
+Test:
+```text
+http://127.0.0.1:8000/
+http://127.0.0.1:8000/api/analyze/THYAO
+http://127.0.0.1:8000/api/scanner
+```
+
+## Frontend Çalıştırma
+
 ```bash
 cd frontend
 npm install
 npm run dev
 ```
 
-Test:
+Frontend:
 ```text
-http://127.0.0.1:8000/api/analyze/THYAO
 http://localhost:3000
 ```
 
-Bu proje yatırım tavsiyesi değildir.
+## Uyarı
+Bu proje yatırım tavsiyesi değildir. Teknik analiz ve model çıktısı üretir.

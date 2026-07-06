@@ -1,3 +1,3 @@
-# bmci-aipro Architecture
+# BMCI AIPro Architecture
 
-Next.js -> FastAPI -> Data Provider -> Indicators -> Cycle Engine -> BMCI Score -> AI Commentary -> SQLite
+User -> Next.js -> FastAPI -> Data Provider -> Indicators -> Cycle Engine -> BMCI Score -> AI Commentary -> SQLite

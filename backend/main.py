@@ -1,9 +1,6 @@
 from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
-
-from .config import APP_NAME, APP_VERSION, DEFAULT_WATCHLIST
-from .data_provider import get_history
-from .indicators import calculate_rsi, calculate_macd, calculate_obv, calculate_ema, fibonacci_levels, support_resistance
+from .data_provider import get_history, BIST_SYMBOLS
+from .indicators import calculate_rsi, calculate_macd, calculate_obv, calculate_ema, fibonacci_levels
 from .cycle_engine import analyze_cycle
 from .bmci_score import calculate_bmci_score
 from .risk_engine import calculate_risk
@@ -11,15 +8,7 @@ from .ai_commentary import generate_ai_comment
 from .database import init_db, save_analysis, get_last_analyses, get_portfolio, add_portfolio_item, get_alarms, add_alarm
 from .schemas import PortfolioCreate, AlarmCreate
 
-app = FastAPI(title="bmci-aipro")
-
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+app = FastAPI(title="BMCI AIPro - BIST Master Cycle Intelligence")
 
 @app.on_event("startup")
 def startup():
@@ -27,11 +16,16 @@ def startup():
 
 @app.get("/")
 def root():
-    return {"status": "ok", "project": APP_NAME, "version": APP_VERSION}
+    return {
+        "status": "ok",
+        "project": "BMCI AIPro",
+        "version": "final-local",
+        "note": "Yatırım tavsiyesi değildir."
+    }
 
 @app.get("/api/symbols")
 def symbols():
-    return DEFAULT_WATCHLIST
+    return BIST_SYMBOLS
 
 @app.get("/api/analyze/{symbol}")
 def analyze(symbol: str):
@@ -39,7 +33,6 @@ def analyze(symbol: str):
     candles = get_history(symbol)
     prices = [c["close"] for c in candles]
     volumes = [c["volume"] for c in candles]
-    source = candles[-1].get("source", "unknown") if candles else "unknown"
 
     price = prices[-1]
     high = max(prices)
@@ -53,32 +46,57 @@ def analyze(symbol: str):
     ema20 = calculate_ema(prices, 20)
     ema50 = calculate_ema(prices, 50)
     fib = fibonacci_levels(high, low)
-    sr = support_resistance(prices)
     cycle = analyze_cycle(prices)
     risk = calculate_risk(prices, rsi, cycle)
 
-    volume_avg = sum(volumes[-20:]) / 20 if len(volumes) >= 20 else max(sum(volumes) / len(volumes), 1)
+    volume_avg = sum(volumes[-20:]) / 20
     volume_strength = round(min(100, (volumes[-1] / volume_avg) * 50)) if volume_avg else 50
 
-    score = calculate_bmci_score(rsi, macd_signal, obv, price, ema20, ema50, cycle, ath_distance_percent, volume_strength, risk["risk_score"])
-    signal = "BUY" if score >= 75 else "WATCH" if score >= 50 else "SELL"
-    ai_comment = generate_ai_comment(symbol, score, rsi, macd_signal, cycle, risk, source)
+    score = calculate_bmci_score(
+        rsi=rsi,
+        macd_signal=macd_signal,
+        obv=obv,
+        price=price,
+        ema20=ema20,
+        ema50=ema50,
+        cycle=cycle,
+        ath_distance_percent=ath_distance_percent,
+        volume_strength=volume_strength,
+        risk_score=risk["risk_score"]
+    )
+
+    if score >= 75:
+        signal = "BUY"
+    elif score >= 50:
+        signal = "WATCH"
+    else:
+        signal = "SELL"
+
+    ai_comment = generate_ai_comment(symbol, score, rsi, macd_signal, cycle, risk)
 
     payload = {
         "symbol": symbol,
         "price": price,
-        "source": source,
         "signal": signal,
         "bmci_score": score,
-        "indicators": {"rsi": rsi, "macd": macd_value, "macd_signal": macd_signal, "obv": obv, "ema20": ema20, "ema50": ema50},
+        "indicators": {
+            "rsi": rsi,
+            "macd": macd_value,
+            "macd_signal": macd_signal,
+            "obv": obv,
+            "ema20": ema20,
+            "ema50": ema50
+        },
         "fibonacci": fib,
-        "support_resistance": sr,
-        "ath": {"ath": ath, "distance_percent": ath_distance_percent},
+        "ath": {
+            "ath": ath,
+            "distance_percent": ath_distance_percent
+        },
         "cycle": cycle,
         "risk": risk,
         "volume_strength": volume_strength,
         "ai_comment": ai_comment,
-        "candles": candles[-120:],
+        "candles": candles[-80:],
         "disclaimer": "Yatırım tavsiyesi değildir."
     }
 
@@ -88,30 +106,35 @@ def analyze(symbol: str):
 @app.get("/api/scanner")
 def scanner():
     results = []
-    for symbol in DEFAULT_WATCHLIST:
+
+    for symbol in BIST_SYMBOLS:
         analysis = analyze(symbol)
         tags = []
+
         if analysis["bmci_score"] >= 90:
             tags.append("BMCI > 90")
-        tags.append("MACD AL" if analysis["indicators"]["macd_signal"] == "positive" else "MACD SAT")
+        if analysis["indicators"]["macd_signal"] == "positive":
+            tags.append("MACD AL")
+        else:
+            tags.append("MACD SAT")
         if analysis["indicators"]["obv"] > 0:
             tags.append("Para Girişi")
         if analysis["cycle"]["phase"] == "early_accumulation":
             tags.append("Yeni Döngü")
         if analysis["ath"]["distance_percent"] < 5:
-            tags.append("ATH Yakını")
+            tags.append("Yeni ATH Yakını")
         if analysis["volume_strength"] > 70:
             tags.append("Hacim Patlaması")
+
         results.append({
             "symbol": symbol,
             "score": analysis["bmci_score"],
             "signal": analysis["signal"],
-            "price": analysis["price"],
-            "source": analysis["source"],
             "tags": tags,
             "cycle_phase": analysis["cycle"]["phase"],
             "days_left": analysis["cycle"]["estimated_days_left"]
         })
+
     return sorted(results, key=lambda x: x["score"], reverse=True)
 
 @app.get("/api/last-analyses")
