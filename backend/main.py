@@ -1,45 +1,99 @@
 from fastapi import FastAPI
-from data_provider import get_bist_price, get_volume, get_history
-from indicators import calculate_rsi, calculate_macd, calculate_obv, calculate_ema
+from .data_provider import get_history
+from .indicators import calculate_rsi, calculate_macd, calculate_obv, calculate_ema, fibonacci_levels
+from .cycle_engine import analyze_cycle
+from .bmci_score import calculate_bmci_score
+from .risk_engine import calculate_risk
+from .ai_commentary import generate_ai_comment
+from .database import init_db, save_analysis, get_last_analyses, get_portfolio, add_portfolio_item, get_alarms, add_alarm
+from .schemas import PortfolioCreate, AlarmCreate
 
-app = FastAPI()
+app = FastAPI(title="BMCI AIPro - BIST Master Cycle Intelligence")
+WATCHLIST = ["THYAO", "ASELS", "BIMAS", "KONYA", "KCHOL", "SISE", "EREGL", "TUPRS", "GARAN", "AKBNK"]
 
-@app.get("/api/bist/{symbol}")
-def bist(symbol: str):
+@app.on_event("startup")
+def startup():
+    init_db()
 
-    history = get_history(symbol)
+@app.get("/")
+def root():
+    return {"status": "ok", "project": "BMCI AIPro", "version": "v5-database"}
 
-    prices = [c["close"] for c in history]
-    volumes = [get_volume() for _ in history]
+@app.get("/api/analyze/{symbol}")
+def analyze(symbol: str):
+    symbol = symbol.upper()
+    candles = get_history(symbol)
+    prices = [c["close"] for c in candles]
+    volumes = [c["volume"] for c in candles]
+
+    price = prices[-1]
+    high, low = max(prices), min(prices)
+    ath = high
+    ath_distance_percent = round(((ath - price) / ath) * 100, 2) if ath else 0
 
     rsi = calculate_rsi(prices)
-    macd, macd_signal = calculate_macd(prices)
+    macd_value, macd_signal = calculate_macd(prices)
     obv = calculate_obv(prices, volumes)
-    ema = calculate_ema(prices)
+    ema20 = calculate_ema(prices, 20)
+    ema50 = calculate_ema(prices, 50)
+    fib = fibonacci_levels(high, low)
+    cycle = analyze_cycle(prices)
+    risk = calculate_risk(prices, rsi, cycle)
 
-    # BMCI SCORE (basit V3 logic)
-    score = 0
+    volume_avg = sum(volumes[-20:]) / 20
+    volume_strength = round(min(100, (volumes[-1] / volume_avg) * 50)) if volume_avg else 50
 
-    if 40 < rsi < 60:
-        score += 25
-    elif rsi > 60:
-        score += 15
-    else:
-        score += 10
+    score = calculate_bmci_score(rsi, macd_signal, obv, price, ema20, ema50, cycle, ath_distance_percent, volume_strength, risk["risk_score"])
+    signal = "BUY" if score >= 75 else "WATCH" if score >= 50 else "SELL"
+    ai_comment = generate_ai_comment(symbol, score, rsi, macd_signal, cycle, risk)
 
-    score += 25 if macd_signal == "positive" else 10
-    score += 25 if prices[-1] > ema else 10
-
-    score = min(score, 100)
-
-    signal = "BUY" if score > 70 else "NEUTRAL" if score > 50 else "SELL"
-
-    return {
-        "symbol": symbol,
-        "bmci_score": score,
-        "signal": signal,
-        "rsi": rsi,
-        "macd": macd_signal,
-        "ema": ema,
-        "obv": obv
+    payload = {
+        "symbol": symbol, "price": price, "signal": signal, "bmci_score": score,
+        "indicators": {"rsi": rsi, "macd": macd_value, "macd_signal": macd_signal, "obv": obv, "ema20": ema20, "ema50": ema50},
+        "fibonacci": fib,
+        "ath": {"ath": ath, "distance_percent": ath_distance_percent},
+        "cycle": cycle,
+        "risk": risk,
+        "volume_strength": volume_strength,
+        "ai_comment": ai_comment,
+        "disclaimer": "Yatırım tavsiyesi değildir."
     }
+    save_analysis(payload)
+    return payload
+
+@app.get("/api/scanner")
+def scanner():
+    results = []
+    for symbol in WATCHLIST:
+        analysis = analyze(symbol)
+        tags = []
+        if analysis["bmci_score"] >= 90: tags.append("BMCI > 90")
+        tags.append("MACD AL" if analysis["indicators"]["macd_signal"] == "positive" else "MACD SAT")
+        if analysis["indicators"]["obv"] > 0: tags.append("Para Girişi")
+        if analysis["cycle"]["phase"] == "early_accumulation": tags.append("Yeni Döngü")
+        if analysis["ath"]["distance_percent"] < 5: tags.append("Yeni ATH Yakını")
+        if analysis["volume_strength"] > 70: tags.append("Hacim Patlaması")
+        results.append({"symbol": symbol, "score": analysis["bmci_score"], "signal": analysis["signal"], "tags": tags, "cycle_phase": analysis["cycle"]["phase"], "days_left": analysis["cycle"]["estimated_days_left"]})
+    return sorted(results, key=lambda x: x["score"], reverse=True)
+
+@app.get("/api/last-analyses")
+def last_analyses():
+    return get_last_analyses()
+
+@app.get("/api/portfolio")
+def portfolio():
+    return get_portfolio()
+
+@app.post("/api/portfolio")
+def create_portfolio_item(item: PortfolioCreate):
+    add_portfolio_item(item.symbol, item.lot, item.cost)
+    return {"status": "ok", "message": "portfolio item added"}
+
+@app.get("/api/alarms")
+def alarms():
+    return get_alarms()
+
+@app.post("/api/alarms")
+def create_alarm(item: AlarmCreate):
+    add_alarm(item.symbol, item.condition_text)
+    return {"status": "ok", "message": "alarm added"}

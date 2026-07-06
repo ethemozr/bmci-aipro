@@ -1,16 +1,17 @@
-# BMCI AIPro
+# BMCI AIPro v5
+BIST Master Cycle Intelligence
 
-BIST Master Cycle Intelligence (BMCI)
+Bu paket SQLite veritabanı, portföy ve alarm altyapısı eklenmiş V5 sürümüdür.
 
-AI destekli BIST analiz platformu.
+## Backend çalıştırma
+cd backend
+pip install -r requirements.txt
+uvicorn main:app --reload
 
-## Özellikler
-- BMCI Score Engine (0-100)
-- AI hisse analizi
-- Teknik indikatörler
-- Scanner sistemi
-
-## Teknoloji
-Frontend: Next.js  
-Backend: FastAPI  
-DB: SQLite
+## Test
+http://127.0.0.1:8000/
+http://127.0.0.1:8000/api/analyze/THYAO
+http://127.0.0.1:8000/api/scanner
+http://127.0.0.1:8000/api/last-analyses
+http://127.0.0.1:8000/api/portfolio
+http://127.0.0.1:8000/api/alarms
