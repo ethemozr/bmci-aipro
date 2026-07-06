@@ -1,25 +1,61 @@
 from fastapi import FastAPI
+import random
 
-app = FastAPI(title="BMCI AIPro")
+app = FastAPI(title="BMCI BIST Data Engine")
+
+# --- MOCK DATA (şimdilik gerçek API bağlamıyoruz) ---
+def get_price(symbol: str):
+    return round(random.uniform(50, 500), 2)
+
+def calculate_indicators(price: float):
+    rsi = random.randint(30, 80)
+    macd = random.choice(["positive", "negative"])
+    obv = random.choice(["strong", "weak"])
+    return rsi, macd, obv
+
+def bmci_score(rsi, macd, obv):
+    score = 0
+
+    # RSI katkı
+    if 40 <= rsi <= 60:
+        score += 15
+    elif rsi > 60:
+        score += 10
+    else:
+        score += 5
+
+    # MACD
+    score += 10 if macd == "positive" else 5
+
+    # OBV
+    score += 10 if obv == "strong" else 5
+
+    # trend fake (v1)
+    score += random.randint(20, 50)
+
+    return min(score, 100)
 
 @app.get("/")
 def root():
-    return {"status": "ok", "system": "BMCI AIPro"}
+    return {"system": "BMCI BIST Engine v1"}
 
-@app.get("/api/analyze/{symbol}")
-def analyze(symbol: str):
+@app.get("/api/bist/{symbol}")
+def bist(symbol: str):
 
-    score = 78
+    price = get_price(symbol)
+    rsi, macd, obv = calculate_indicators(price)
+    score = bmci_score(rsi, macd, obv)
+
+    signal = "BUY" if score > 70 else "NEUTRAL" if score > 50 else "SELL"
 
     return {
         "symbol": symbol,
+        "price": price,
         "bmci_score": score,
-        "signal": "BUY" if score > 70 else "NEUTRAL",
+        "signal": signal,
         "indicators": {
-            "rsi": 52,
-            "macd": "positive",
-            "obv": "strong"
-        },
-        "risk": "medium",
-        "ai_comment": f"{symbol} güçlü yapı gösteriyor, trend yukarı yönlü."
+            "rsi": rsi,
+            "macd": macd,
+            "obv": obv
+        }
     }
