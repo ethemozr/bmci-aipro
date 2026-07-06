@@ -4,204 +4,309 @@
 
 body {
   margin: 0;
-  background: radial-gradient(circle at top, #151515 0%, #050505 45%, #000 100%);
-  color: #f5f5f5;
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at top left, rgba(34, 197, 94, 0.15), transparent 32%),
+    radial-gradient(circle at top right, rgba(59, 130, 246, 0.14), transparent 30%),
+    #050505;
+  color: #f8fafc;
   font-family: Arial, Helvetica, sans-serif;
 }
 
+button,
+input {
+  font-family: inherit;
+}
+
 .page {
-  max-width: 1280px;
+  width: min(1320px, 100%);
   margin: 0 auto;
   padding: 32px;
 }
 
-.header {
-  display: flex;
-  justify-content: space-between;
+.topbar {
+  display: grid;
+  grid-template-columns: 1fr minmax(320px, 520px);
   gap: 24px;
   align-items: center;
   margin-bottom: 26px;
 }
 
-.header h1 {
-  font-size: 42px;
+.brandMark {
+  width: fit-content;
+  padding: 7px 12px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #16a34a, #2563eb);
+  font-size: 13px;
+  font-weight: 800;
+  margin-bottom: 12px;
+}
+
+.topbar h1 {
+  font-size: 44px;
+  line-height: 1;
   margin: 0;
+  letter-spacing: -1px;
 }
 
-.header p {
-  color: #a3a3a3;
-  margin-top: 8px;
+.topbar p {
+  margin: 10px 0 0;
+  color: #94a3b8;
 }
 
-.searchBox {
-  display: flex;
+.searchPanel {
+  background: rgba(15, 23, 42, 0.72);
+  border: 1px solid rgba(148, 163, 184, 0.18);
+  border-radius: 22px;
+  padding: 18px;
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.35);
+}
+
+.searchPanel label {
+  display: block;
+  font-size: 13px;
+  color: #94a3b8;
+  margin-bottom: 10px;
+}
+
+.searchLine {
+  display: grid;
+  grid-template-columns: 1fr 140px;
   gap: 10px;
-  background: #111;
-  border: 1px solid #252525;
-  padding: 10px;
-  border-radius: 18px;
 }
 
-.searchBox input {
-  width: 280px;
-  background: #050505;
+.searchLine input {
+  background: #020617;
   color: white;
-  border: 1px solid #333;
-  border-radius: 12px;
-  padding: 14px;
+  border: 1px solid #263244;
+  border-radius: 14px;
+  padding: 14px 16px;
   outline: none;
 }
 
-.searchBox button {
+.searchLine button {
+  border: 0;
+  border-radius: 14px;
   background: linear-gradient(135deg, #22c55e, #16a34a);
   color: white;
-  border: none;
-  border-radius: 12px;
-  padding: 0 20px;
+  font-weight: 800;
   cursor: pointer;
-  font-weight: bold;
 }
 
 .tabs {
   display: flex;
-  gap: 12px;
-  margin-bottom: 24px;
   flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 22px;
 }
 
 .tabs span {
-  padding: 10px 16px;
+  padding: 10px 15px;
   border-radius: 999px;
-  background: #101010;
-  border: 1px solid #242424;
-  color: #aaa;
+  background: rgba(15, 23, 42, 0.72);
+  border: 1px solid rgba(148, 163, 184, 0.16);
+  color: #94a3b8;
+  font-size: 14px;
 }
 
-.activeTab {
-  background: #1e293b !important;
-  color: white !important;
+.tabs .active {
+  color: white;
+  background: rgba(37, 99, 235, 0.32);
+  border-color: rgba(96, 165, 250, 0.38);
 }
 
-.hero {
+.summaryGrid {
   display: grid;
-  grid-template-columns: 1.1fr 1fr 1fr 1fr;
+  grid-template-columns: 1.08fr 1fr 1fr 1fr;
   gap: 18px;
-  margin-bottom: 20px;
+  margin-bottom: 18px;
 }
 
 .card,
 .panel,
-.scoreCard {
-  background: linear-gradient(180deg, #171717, #0b0b0b);
-  border: 1px solid #292929;
-  border-radius: 22px;
+.scoreCard,
+.errorBox,
+.loadingBox {
+  background: linear-gradient(180deg, rgba(24, 24, 27, 0.92), rgba(9, 9, 11, 0.92));
+  border: 1px solid rgba(148, 163, 184, 0.15);
+  border-radius: 24px;
   padding: 22px;
-  box-shadow: 0 20px 45px rgba(0, 0, 0, 0.25);
+  box-shadow: 0 22px 65px rgba(0, 0, 0, 0.3);
 }
 
 .scoreCard h2 {
-  font-size: 28px;
-  margin: 8px 0;
+  font-size: 30px;
+  margin: 8px 0 12px;
 }
 
-.label {
-  color: #999;
-  font-size: 13px;
+.miniTitle,
+.muted,
+.note {
+  color: #94a3b8;
 }
 
-.score {
-  font-size: 64px;
-  font-weight: 800;
-  margin: 8px 0;
+.gauge {
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background:
+    conic-gradient(#22c55e 0deg, #22c55e 252deg, #1f2937 252deg, #1f2937 360deg);
+  margin: 14px 0;
+}
+
+.gaugeInner {
+  width: 116px;
+  height: 116px;
+  border-radius: 50%;
+  background: #050505;
+  display: grid;
+  place-items: center;
+  align-content: center;
+  border: 1px solid #273244;
+}
+
+.gaugeInner span {
+  font-size: 42px;
+  font-weight: 900;
+}
+
+.gaugeInner small {
+  color: #94a3b8;
+  font-weight: 700;
 }
 
 .signal {
   display: inline-block;
   padding: 8px 14px;
   border-radius: 999px;
-  font-weight: bold;
+  font-weight: 900;
+  letter-spacing: 0.3px;
 }
 
 .signal.buy {
-  background: #14532d;
+  background: rgba(22, 163, 74, 0.22);
   color: #86efac;
 }
 
 .signal.watch {
-  background: #1e3a8a;
+  background: rgba(37, 99, 235, 0.22);
   color: #bfdbfe;
 }
 
 .signal.sell {
-  background: #7f1d1d;
+  background: rgba(220, 38, 38, 0.22);
   color: #fecaca;
 }
 
 .card h3,
 .panel h3 {
-  margin-top: 0;
-  margin-bottom: 18px;
+  margin: 0 0 18px;
+  font-size: 20px;
 }
 
 .row {
   display: flex;
   justify-content: space-between;
-  border-bottom: 1px solid #222;
-  padding: 10px 0;
   gap: 16px;
+  padding: 11px 0;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.12);
 }
 
 .row span {
-  color: #a3a3a3;
+  color: #94a3b8;
 }
 
-.contentGrid {
+.row strong {
+  text-align: right;
+}
+
+.analysisGrid {
   display: grid;
   grid-template-columns: 2fr 1fr 1fr;
   gap: 18px;
-  margin-bottom: 20px;
+  margin-bottom: 18px;
 }
 
-.panel.wide p {
-  line-height: 1.7;
-  color: #ddd;
+.aiPanel p {
+  color: #e5e7eb;
+  line-height: 1.75;
+  font-size: 16px;
+}
+
+.panelHeader {
+  display: flex;
+  justify-content: space-between;
+  gap: 18px;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.panelHeader span {
+  color: #94a3b8;
+  font-size: 13px;
 }
 
 .scannerTable {
   display: grid;
-  gap: 10px;
+  gap: 0;
+  overflow: hidden;
+  border-radius: 16px;
+  border: 1px solid rgba(148, 163, 184, 0.12);
+}
+
+.scannerHead,
+.scannerRow {
+  display: grid;
+  grid-template-columns: 120px 90px 90px 110px 1fr;
+  gap: 14px;
+  align-items: center;
+  padding: 14px 16px;
+}
+
+.scannerHead {
+  background: rgba(15, 23, 42, 0.95);
+  color: #94a3b8;
+  font-size: 13px;
+  font-weight: 800;
 }
 
 .scannerRow {
-  display: grid;
-  grid-template-columns: 120px 120px 100px 1fr;
-  gap: 12px;
-  align-items: center;
-  border-bottom: 1px solid #222;
-  padding: 12px 0;
+  border-top: 1px solid rgba(148, 163, 184, 0.1);
 }
 
 .scannerRow small {
-  color: #aaa;
+  color: #94a3b8;
 }
 
-@media (max-width: 1000px) {
-  .header {
-    flex-direction: column;
-    align-items: stretch;
-  }
+.errorBox {
+  border-color: rgba(248, 113, 113, 0.35);
+  background: rgba(127, 29, 29, 0.22);
+  margin-bottom: 20px;
+}
 
-  .searchBox {
-    flex-direction: column;
-  }
+.loadingBox {
+  color: #94a3b8;
+}
 
-  .searchBox input {
-    width: 100%;
-  }
-
-  .hero,
-  .contentGrid {
+@media (max-width: 1100px) {
+  .topbar,
+  .summaryGrid,
+  .analysisGrid {
     grid-template-columns: 1fr;
+  }
+
+  .searchLine {
+    grid-template-columns: 1fr;
+  }
+
+  .searchLine button {
+    padding: 14px;
+  }
+
+  .scannerHead {
+    display: none;
   }
 
   .scannerRow {
