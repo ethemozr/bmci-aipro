@@ -1,22 +1,45 @@
 from fastapi import FastAPI
 from data_provider import get_bist_price, get_volume, get_history
+from indicators import calculate_rsi, calculate_macd, calculate_obv, calculate_ema
 
 app = FastAPI()
 
 @app.get("/api/bist/{symbol}")
 def bist(symbol: str):
 
-    # ✅ DATA LAYER (V2)
-    price = get_bist_price(symbol)
-    volume = get_volume()
     history = get_history(symbol)
 
-    # örnek response (şimdilik)
+    prices = [c["close"] for c in history]
+    volumes = [get_volume() for _ in history]
+
+    rsi = calculate_rsi(prices)
+    macd, macd_signal = calculate_macd(prices)
+    obv = calculate_obv(prices, volumes)
+    ema = calculate_ema(prices)
+
+    # BMCI SCORE (basit V3 logic)
+    score = 0
+
+    if 40 < rsi < 60:
+        score += 25
+    elif rsi > 60:
+        score += 15
+    else:
+        score += 10
+
+    score += 25 if macd_signal == "positive" else 10
+    score += 25 if prices[-1] > ema else 10
+
+    score = min(score, 100)
+
+    signal = "BUY" if score > 70 else "NEUTRAL" if score > 50 else "SELL"
+
     return {
         "symbol": symbol,
-        "price": price,
-        "volume": volume,
-        "candles": history
+        "bmci_score": score,
+        "signal": signal,
+        "rsi": rsi,
+        "macd": macd_signal,
+        "ema": ema,
+        "obv": obv
     }
-
-from indicators import calculate_rsi, calculate_macd, calculate_obv, calculate_ema
