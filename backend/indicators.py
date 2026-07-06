@@ -1,32 +1,44 @@
 def calculate_rsi(prices, period=14):
     if len(prices) < period + 1:
         return 50.0
-    gains = losses = 0.0
+
+    gains = 0.0
+    losses = 0.0
+
     for i in range(-period, 0):
         change = prices[i] - prices[i - 1]
-        gains += change if change > 0 else 0
-        losses += abs(change) if change < 0 else 0
+        if change > 0:
+            gains += change
+        else:
+            losses += abs(change)
+
     if losses == 0:
         return 100.0
+
     rs = gains / losses
     return round(100 - (100 / (1 + rs)), 2)
 
 def calculate_ema(prices, period=14):
     if not prices:
         return 0.0
+
     if len(prices) < period:
         return round(sum(prices) / len(prices), 2)
+
     multiplier = 2 / (period + 1)
     ema = sum(prices[:period]) / period
+
     for price in prices[period:]:
         ema = (price - ema) * multiplier + ema
+
     return round(ema, 2)
 
 def calculate_macd(prices):
     ema12 = calculate_ema(prices, 12)
     ema26 = calculate_ema(prices, 26)
     macd_line = round(ema12 - ema26, 2)
-    return macd_line, "positive" if macd_line > 0 else "negative"
+    signal = "positive" if macd_line > 0 else "negative"
+    return macd_line, signal
 
 def calculate_obv(prices, volumes):
     obv = 0
