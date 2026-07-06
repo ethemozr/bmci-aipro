@@ -1,6 +1,210 @@
-* { box-sizing: border-box; }
-body { margin: 0; background: #050505; color: #fff; font-family: Arial, Helvetica, sans-serif; }
-.card { background: linear-gradient(180deg,#151515,#0b0b0b); border: 1px solid #252525; border-radius: 18px; padding: 20px; }
-.grid { display: grid; gap: 16px; }
-.badge { display: inline-block; padding: 6px 10px; border-radius: 999px; background: #1e293b; }
-.muted { color: #aaa; }
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: radial-gradient(circle at top, #151515 0%, #050505 45%, #000 100%);
+  color: #f5f5f5;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.page {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 32px;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  gap: 24px;
+  align-items: center;
+  margin-bottom: 26px;
+}
+
+.header h1 {
+  font-size: 42px;
+  margin: 0;
+}
+
+.header p {
+  color: #a3a3a3;
+  margin-top: 8px;
+}
+
+.searchBox {
+  display: flex;
+  gap: 10px;
+  background: #111;
+  border: 1px solid #252525;
+  padding: 10px;
+  border-radius: 18px;
+}
+
+.searchBox input {
+  width: 280px;
+  background: #050505;
+  color: white;
+  border: 1px solid #333;
+  border-radius: 12px;
+  padding: 14px;
+  outline: none;
+}
+
+.searchBox button {
+  background: linear-gradient(135deg, #22c55e, #16a34a);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  padding: 0 20px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.tabs {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+
+.tabs span {
+  padding: 10px 16px;
+  border-radius: 999px;
+  background: #101010;
+  border: 1px solid #242424;
+  color: #aaa;
+}
+
+.activeTab {
+  background: #1e293b !important;
+  color: white !important;
+}
+
+.hero {
+  display: grid;
+  grid-template-columns: 1.1fr 1fr 1fr 1fr;
+  gap: 18px;
+  margin-bottom: 20px;
+}
+
+.card,
+.panel,
+.scoreCard {
+  background: linear-gradient(180deg, #171717, #0b0b0b);
+  border: 1px solid #292929;
+  border-radius: 22px;
+  padding: 22px;
+  box-shadow: 0 20px 45px rgba(0, 0, 0, 0.25);
+}
+
+.scoreCard h2 {
+  font-size: 28px;
+  margin: 8px 0;
+}
+
+.label {
+  color: #999;
+  font-size: 13px;
+}
+
+.score {
+  font-size: 64px;
+  font-weight: 800;
+  margin: 8px 0;
+}
+
+.signal {
+  display: inline-block;
+  padding: 8px 14px;
+  border-radius: 999px;
+  font-weight: bold;
+}
+
+.signal.buy {
+  background: #14532d;
+  color: #86efac;
+}
+
+.signal.watch {
+  background: #1e3a8a;
+  color: #bfdbfe;
+}
+
+.signal.sell {
+  background: #7f1d1d;
+  color: #fecaca;
+}
+
+.card h3,
+.panel h3 {
+  margin-top: 0;
+  margin-bottom: 18px;
+}
+
+.row {
+  display: flex;
+  justify-content: space-between;
+  border-bottom: 1px solid #222;
+  padding: 10px 0;
+  gap: 16px;
+}
+
+.row span {
+  color: #a3a3a3;
+}
+
+.contentGrid {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr;
+  gap: 18px;
+  margin-bottom: 20px;
+}
+
+.panel.wide p {
+  line-height: 1.7;
+  color: #ddd;
+}
+
+.scannerTable {
+  display: grid;
+  gap: 10px;
+}
+
+.scannerRow {
+  display: grid;
+  grid-template-columns: 120px 120px 100px 1fr;
+  gap: 12px;
+  align-items: center;
+  border-bottom: 1px solid #222;
+  padding: 12px 0;
+}
+
+.scannerRow small {
+  color: #aaa;
+}
+
+@media (max-width: 1000px) {
+  .header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .searchBox {
+    flex-direction: column;
+  }
+
+  .searchBox input {
+    width: 100%;
+  }
+
+  .hero,
+  .contentGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .scannerRow {
+    grid-template-columns: 1fr;
+  }
+}
