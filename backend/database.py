@@ -11,9 +11,7 @@ def get_connection():
 def init_db():
     conn = get_connection()
     cur = conn.cursor()
-
-    cur.execute('''
-    CREATE TABLE IF NOT EXISTS analyses (
+    cur.execute('''CREATE TABLE IF NOT EXISTS analyses (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         symbol TEXT NOT NULL,
         price REAL,
@@ -25,40 +23,30 @@ def init_db():
         risk_level TEXT,
         ai_comment TEXT,
         created_at TEXT
-    )
-    ''')
-
-    cur.execute('''
-    CREATE TABLE IF NOT EXISTS portfolio (
+    )''')
+    cur.execute('''CREATE TABLE IF NOT EXISTS portfolio (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         symbol TEXT NOT NULL,
         lot REAL NOT NULL,
         cost REAL NOT NULL,
         created_at TEXT
-    )
-    ''')
-
-    cur.execute('''
-    CREATE TABLE IF NOT EXISTS alarms (
+    )''')
+    cur.execute('''CREATE TABLE IF NOT EXISTS alarms (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         symbol TEXT NOT NULL,
         condition_text TEXT NOT NULL,
         is_active INTEGER DEFAULT 1,
         created_at TEXT
-    )
-    ''')
-
+    )''')
     conn.commit()
     conn.close()
 
 def save_analysis(payload: dict):
     conn = get_connection()
     cur = conn.cursor()
-    cur.execute('''
-    INSERT INTO analyses
+    cur.execute('''INSERT INTO analyses
     (symbol, price, bmci_score, signal, rsi, macd, cycle_phase, risk_level, ai_comment, created_at)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-    ''', (
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)''', (
         payload.get("symbol"),
         payload.get("price"),
         payload.get("bmci_score"),
@@ -94,10 +82,7 @@ def get_portfolio():
 def add_portfolio_item(symbol: str, lot: float, cost: float):
     conn = get_connection()
     cur = conn.cursor()
-    cur.execute(
-        "INSERT INTO portfolio (symbol, lot, cost, created_at) VALUES (?, ?, ?, ?)",
-        (symbol.upper(), lot, cost, datetime.now().isoformat(timespec="seconds"))
-    )
+    cur.execute("INSERT INTO portfolio (symbol, lot, cost, created_at) VALUES (?, ?, ?, ?)", (symbol.upper(), lot, cost, datetime.now().isoformat(timespec="seconds")))
     conn.commit()
     conn.close()
 
@@ -113,9 +98,6 @@ def get_alarms():
 def add_alarm(symbol: str, condition_text: str):
     conn = get_connection()
     cur = conn.cursor()
-    cur.execute(
-        "INSERT INTO alarms (symbol, condition_text, is_active, created_at) VALUES (?, ?, 1, ?)",
-        (symbol.upper(), condition_text, datetime.now().isoformat(timespec="seconds"))
-    )
+    cur.execute("INSERT INTO alarms (symbol, condition_text, is_active, created_at) VALUES (?, ?, 1, ?)", (symbol.upper(), condition_text, datetime.now().isoformat(timespec="seconds")))
     conn.commit()
     conn.close()
